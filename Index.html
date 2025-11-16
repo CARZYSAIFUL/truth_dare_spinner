@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Truth & Dare Spinner – Premium Glass UI</title>
+
+<!-- Bangla Supported Font -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ================================
+   GLOBAL PREMIUM GLASS UI BASE
+================================ */
+body {
+    margin: 0;
+    font-family: "Noto Sans Bengali", sans-serif;
+    background: linear-gradient(135deg, #8ab6ff, #dfeaff, #ffffff);
+    min-height: 100vh;
+    padding: 25px;
+    display: flex;
+    justify-content: center;
+}
+
+.glass-card {
+    width: 100%;
+    max-width: 950px;
+    background: rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    padding: 25px;
+    border-radius: 25px;
+    border: 1px solid rgba(255,255,255,0.50);
+    box-shadow: 0 15px 45px rgba(0,0,0,0.12);
+}
+
+/* ====================
+   RULES HEADER (Glass)
+==================== */
+.rules-header {
+    background: rgba(52,120,255,0.85);
+    color: white;
+    padding: 14px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    border-radius: 16px;
+    cursor: pointer;
+    box-shadow: 0 5px 18px rgba(52,120,255,0.5);
+}
+.rules-header:hover {
+    background: rgba(52,120,255,1);
+}
+
+.rules-box {
+    display: none;
+    background: rgba(255,255,255,0.80);
+    padding: 18px;
+    border-radius: 14px;
+    margin-top: 14px;
+    border-left: 5px solid #3478ff;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    line-height: 1.7;
+    font-size: 16px;
+}
+hr { border: none; border-bottom: 1px solid #ddd; margin: 12px 0; }
+
+/* ============================
+   PAGE GRID LAYOUT
+============================ */
+.layout {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 25px;
+    margin-top: 20px;
+}
+@media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+}
+
+/* ============================
+   SPINNER WHEEL PREMIUM STYLE
+============================ */
+.wheel-frame {
+    position: relative;
+    width: 330px;
+    height: 330px;
+    margin: auto;
+}
+
+#wheelCanvas {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    transform-origin: center;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.15);
+}
+
+/* Pointer */
+.pointer {
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 14px solid transparent;
+    border-right: 14px solid transparent;
+    border-bottom: 28px solid #1a2a50;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.3));
+}
+
+/* Winner Popup */
+.winner-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 170px;
+    height: 170px;
+    transform: translate(-50%, -50%) scale(0.6);
+    background: rgba(255,255,255,0.90);
+    backdrop-filter: blur(8px);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: 0.4s;
+    text-align: center;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.15);
+}
+.winner-box.show {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.winner-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #ff3e60;
+}
+.winner-name {
+    margin-top: 8px;
+    font-size: 22px;
+    font-weight: 800;
+    color: #1b2a4a;
+}
+
+/* ============================
+   CONTROL PANEL (Glass Inputs)
+============================ */
+.input-box {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #cddaff;
+    background: rgba(255,255,255,0.75);
+    font-size: 15px;
+}
+
+.btn {
+    padding: 12px 18px;
+    border-radius: 12px;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: 700;
+    color: white;
+    background: linear-gradient(135deg, #256dff, #6f9bff);
+    box-shadow: 0 4px 14px rgba(37,109,255,0.35);
+}
+.btn:hover { transform: scale(1.05); }
+
+.btn-secondary {
+    background: linear-gradient(135deg, #ff4e6a, #ff8ca1);
+    box-shadow: 0 4px 14px rgba(255,78,106,0.30);
+}
+
+/* Names List */
+#namesList {
+    list-style: none;
+    padding: 0;
+    margin-top: 15px;
+    max-height: 240px;
+    overflow-y: auto;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.65);
+    backdrop-filter: blur(10px);
+}
+#namesList li {
+    padding: 10px 14px;
+    font-weight: 600;
+    color: #1b2a4a;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: space-between;
+}
+#namesList li button {
+    border: none;
+    background: none;
+    font-size: 18px;
+    color: #ff3b3b;
+    cursor: pointer;
+}
+
+/* ====================
+   CONFETTI
+==================== */
+.confetti {
+    position: fixed;
+    width: 10px;
+    height: 14px;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0;
+}
+
+/* ============================
+   RGB DEVELOPER BADGE
+============================ */
+.dev-tag {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 16px;
+    font-weight: 800;
+    background: linear-gradient(90deg, red, yellow, green, cyan, blue, violet, red);
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: rgbFlow 3s linear infinite;
+}
+@keyframes rgbFlow {
+    100% { background-position: 400%; }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="glass-card">
+
+    <!-- RULES HEADER -->
+    <div class="rules-header" onclick="toggleRules()">
+        📘 Truth or Dare Rules (Click to Open)
+    </div>
+
+    <!-- RULES BOX -->
+    <div id="rulesBox" class="rules-box">
+        <p><b>1. গেম শুরুর নিয়ম</b><br> সবাই গোল হয়ে বসবে, একজনকে প্রথমে বেছে নেবে।</p>
+        <hr>
+        <p><b>2. Truth or Dare?</b><br> যার পালা তাকে জিজ্ঞেস করা হবে—Truth না Dare?</p>
+        <hr>
+        <p><b>3. Truth নিলে</b><br> সত্যি উত্তর দিতে হবে। অপমানজনক নয়।</p>
+        <p>• তোমার সবচেয়ে বড় ভয়?<br>• কাউকে পছন্দ করো? নাম?<br>• মিথ্যে বলে ধরা খেয়েছ?</p>
+        <hr>
+        <p><b>4. Dare নিলে</b><br> নিরাপদ ও মজার চ্যালেঞ্জ করতে হবে।</p>
+        <p>• ৩০ সেকেন্ড নৃত্য করো<br>• কারো নকল করো<br>• মজার ভিডিও বানাও</p>
+        <hr>
+        <p><b>5. পাস</b><br> চাইলে Truth/Dare পাস করা যাবে (শাস্তি দিতে পারো)।</p>
+        <hr>
+        <p><b>6. সেফটি</b><br> কেউ অপমানিত/আঘাতপ্রাপ্ত হবে না।</p>
+        <hr>
+        <p><b>7. শেষ</b><br> সময়/রাউন্ড শেষে গেম শেষ করতে পারবে।</p>
+    </div>
+
+    <!-- MAIN LAYOUT -->
+    <div class="layout">
+
+        <!-- WHEEL AREA -->
+        <div class="wheel-frame">
+            <div class="pointer"></div>
+            <canvas id="wheelCanvas"></canvas>
+
+            <div id="winnerBox" class="winner-box">
+                <div class="winner-title">🎉 CONGRATS!</div>
+                <div id="winnerName" class="winner-name">---</div>
+            </div>
+
+            <div class="dev-tag">DEVELOPED BY SAIFUL</div>
+        </div>
+
+        <!-- CONTROL AREA -->
+        <div>
+            <h2 style="font-weight:700;">🎡 Truth & Dare Spinner</h2>
+
+            <div style="display:flex; gap:10px;">
+                <input id="nameInput" class="input-box" placeholder="নাম লিখুন…" />
+                <button id="addBtn" class="btn">Add</button>
+            </div>
+
+            <ul id="namesList"></ul>
+
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <button id="spinBtn" class="btn-secondary" style="flex:1;">Spin Wheel 🎡</button>
+                <button id="clearBtn" class="btn" style="background:#777;">Clear</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<script>
+/* RULES TOGGLE */
+function toggleRules(){
+    const box = document.getElementById("rulesBox");
+    box.style.display = box.style.display === "block" ? "none" : "block";
+}
+
+/* SPINNER */
+const canvas = document.getElementById("wheelCanvas");
+const ctx = canvas.getContext("2d");
+let players = [];
+let spinning = false;
+let currentRotation = 0;
+
+/* Resize */
+function resizeCanvas(){
+    const size = 320;
+    canvas.width = size * 2;
+    canvas.height = size * 2;
+    canvas.style.width = size + "px";
+    canvas.style.height = size + "px";
+}
+resizeCanvas();
+
+/* Draw Wheel */
+function drawWheel(){
+    const cx = canvas.width/2;
+    const cy = canvas.height/2;
+    const r = canvas.width*0.42;
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    const n = players.length || 1;
+    const arc = (2*Math.PI)/n;
+
+    for(let i=0;i<n;i++){
+        const start = arc*i - Math.PI/2;
+        const end = start + arc;
+
+        ctx.beginPath();
+        ctx.moveTo(cx,cy);
+        ctx.fillStyle = ["#ff6b81","#6c9cff","#ffa86c","#55d88a","#8e54ff","#ff4ecd"][i%6];
+        ctx.arc(cx,cy,r,start,end);
+        ctx.fill();
+
+        ctx.save();
+        ctx.translate(cx,cy);
+        ctx.rotate(start + arc/2);
+        ctx.textAlign="center";
+        ctx.fillStyle="#fff";
+        ctx.font="bold 24px Noto Sans Bengali";
+        ctx.fillText(players[i]||"",r*0.55,10);
+        ctx.restore();
+    }
+}
+drawWheel();
+
+/* UI */
+const nameInput=document.getElementById("nameInput");
+const addBtn=document.getElementById("addBtn");
+const namesList=document.getElementById("namesList");
+const spinBtn=document.getElementById("spinBtn");
+const clearBtn=document.getElementById("clearBtn");
+const winnerBox=document.getElementById("winnerBox");
+const winnerName=document.getElementById("winnerName");
+
+addBtn.onclick=()=>{
+    const val=nameInput.value.trim();
+    if(val){
+        players.push(val);
+        updateList();
+        nameInput.value="";
+    }
+};
+
+function updateList(){
+    namesList.innerHTML="";
+    players.forEach((p,i)=>{
+        const li=document.createElement("li");
+        li.innerHTML=`${p} <button onclick="removeName(${i})">×</button>`;
+        namesList.appendChild(li);
+    });
+    drawWheel();
+}
+
+function removeName(i){
+    players.splice(i,1);
+    updateList();
+}
+
+clearBtn.onclick=()=>{
+    players=[];
+    updateList();
+    winnerBox.classList.remove("show");
+};
+
+/* Spin */
+spinBtn.onclick=()=>{
+    if(spinning) return;
+    if(players.length===0) return alert("কমপক্ষে ১টি নাম যোগ করুন!");
+
+    spinning=true;
+    winnerBox.classList.remove("show");
+
+    const rotation = 360*5 + Math.random()*360;
+    currentRotation += rotation;
+
+    canvas.style.transition="4s cubic-bezier(.18,1,.22,1)";
+    canvas.style.transform=`rotate(${currentRotation}deg)`;
+
+    canvas.addEventListener("transitionend",()=>{
+        canvas.style.transition="";
+        
+        const normalized = (currentRotation % 360 + 360) % 360;
+        const sliceAngle = 360/players.length;
+        const index = Math.floor((360 - normalized + sliceAngle/2)/sliceAngle) % players.length;
+
+        winnerName.innerText = players[index];
+        winnerBox.classList.add("show");
+
+        confetti();
+        spinning=false;
+    }, {once:true});
+};
+
+/* Confetti */
+function confetti(){
+    let colors=["#ff6b6b","#ffd166","#06d6a0","#4dabf7","#845ef7"];
+    for(let i=0;i<45;i++){
+        let c=document.createElement("div");
+        c.className="confetti";
+        c.style.left=(50+Math.random()*30-15)+"%";
+        c.style.top="40%";
+        c.style.background=colors[i%colors.length];
+        c.style.opacity=1;
+        document.body.appendChild(c);
+
+        setTimeout(()=>{
+            c.style.transition="1.6s";
+            c.style.transform=`translateY(${200+Math.random()*250}px) rotate(${Math.random()*360}deg)`;
+            c.style.opacity=0;
+        },10);
+
+        setTimeout(()=>c.remove(),1800);
+    }
+}
+</script>
+
+</body>
+</html>
